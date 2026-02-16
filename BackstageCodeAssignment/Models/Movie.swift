@@ -14,12 +14,11 @@ struct Movie: Codable, Searchable {
     var director: String
     var year: Int
     
-    func matchesQuery(_ object: Searchable, query: String) -> Bool {
-        guard let movie = object as? Movie else { return false }
-        return (movie.title.lowercased().contains(query) ||
-            movie.genre.lowercased().contains(query) ||
-            movie.director.lowercased().contains(query) ||
-            "\(movie.year)".contains(query)
+    func matchesQuery(query: String) -> Bool {
+        return (title.lowercased().contains(query) ||
+            genre.lowercased().contains(query) ||
+            director.lowercased().contains(query) ||
+            "\(year)".contains(query)
         )
     }
 }
