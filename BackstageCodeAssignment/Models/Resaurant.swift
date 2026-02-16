@@ -20,6 +20,6 @@ struct Cuisine: Codable {
     var restaurants: [Restaurant]
 }
 
-struct CuisineResponse: Codable {
+nonisolated struct CuisineResponse: Codable {
     var cuisines: [Cuisine]
 }
