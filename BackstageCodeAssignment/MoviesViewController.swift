@@ -73,6 +73,7 @@ class MoviesViewController: UITableViewController {
                 errorMessage = error.localizedDescription
                 showError(error.localizedDescription)
             }
+            tableView.reloadData()
         }
     }
 

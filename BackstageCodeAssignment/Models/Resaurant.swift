@@ -15,16 +15,20 @@ struct Restaurant: Codable, Searchable {
     var rating: Double
     
     func matchesQuery(query: String) -> Bool {
-        return name.contains(query) || city.contains(query) || priceLevel.contains(query) || String(rating).contains(query)
+        return name.lowercased().contains(query) || city.lowercased().contains(query) || priceLevel.lowercased().contains(query) || String(rating).lowercased().contains(query)
     }
 }
 
 struct Cuisine: Codable, Searchable {
     var name: String
     var restaurants: [Restaurant]
+    var filteredRestaurants: [Restaurant]?
     
     func matchesQuery(query: String) -> Bool {
-        return name.contains(query)
+        let filteredRestaurants = restaurants.filter { restaurant in
+            restaurant.matchesQuery(query: query)
+        }
+        return name.lowercased().contains(query) || !filteredRestaurants.isEmpty
     }
 }
 
