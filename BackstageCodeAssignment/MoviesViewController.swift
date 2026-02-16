@@ -33,7 +33,7 @@ class MoviesViewController: UITableViewController {
     private func setupSearch() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search by title, genre, or director"
+        searchController.searchBar.placeholder = "Search by title, genre, year or director"
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
@@ -57,10 +57,7 @@ class MoviesViewController: UITableViewController {
         }
         let query = searchQuery.lowercased()
         filteredMovies = movies.filter { movie in
-            movie.title.lowercased().contains(query) ||
-            movie.genre.lowercased().contains(query) ||
-            movie.director.lowercased().contains(query) ||
-            "\(movie.year)".lowercased().contains(query)
+            movie.matchesQuery(query: query)
         }
         tableView.reloadData()
     }
