@@ -6,11 +6,17 @@
 //
 
 import UIKit
-
 class MoviesViewController: UITableViewController {
 
-    private var movies: [Movie] = []
+    // MARK: - Properties
+
+    private var movies: [Movie] = [] {
+        didSet { applyFilter() }
+    }
+    private var filteredMovies: [Movie] = []
     private var errorMessage: String?
+
+    private let searchController = UISearchController(searchResultsController: nil)
 
     // MARK: - Lifecycle
 
@@ -18,7 +24,44 @@ class MoviesViewController: UITableViewController {
         super.viewDidLoad()
         title = "Movies"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MovieCell")
+        setupSearch()
         loadMovies()
+    }
+
+    // MARK: - Search Setup
+
+    private func setupSearch() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search by title, genre, or director"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+    }
+
+    // MARK: - Filtering
+
+    private var searchQuery: String {
+        searchController.searchBar.text?.trimmingCharacters(in: .whitespaces) ?? ""
+    }
+
+    private var isFiltering: Bool {
+        searchController.isActive && !searchQuery.isEmpty
+    }
+
+    private func applyFilter() {
+        guard isFiltering else {
+            filteredMovies = movies
+            tableView.reloadData()
+            return
+        }
+        let query = searchQuery.lowercased()
+        filteredMovies = movies.filter { movie in
+            movie.title.lowercased().contains(query) ||
+            movie.genre.lowercased().contains(query) ||
+            movie.director.lowercased().contains(query)
+        }
+        tableView.reloadData()
     }
 
     // MARK: - Data Loading
@@ -32,7 +75,6 @@ class MoviesViewController: UITableViewController {
                 errorMessage = error.localizedDescription
                 showError(error.localizedDescription)
             }
-            tableView.reloadData()
         }
     }
 
@@ -45,12 +87,12 @@ class MoviesViewController: UITableViewController {
     // MARK: - UITableViewDataSource
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        movies.count
+        filteredMovies.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath)
-        let movie = movies[indexPath.row]
+        let movie = filteredMovies[indexPath.row]
 
         var content = cell.defaultContentConfiguration()
         content.text = movie.title
@@ -58,5 +100,13 @@ class MoviesViewController: UITableViewController {
         cell.contentConfiguration = content
 
         return cell
+    }
+}
+
+// MARK: - UISearchResultsUpdating
+
+extension MoviesViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        applyFilter()
     }
 }
