@@ -56,8 +56,8 @@ class RestaurantsViewController: UITableViewController {
             return
         }
         let query = searchQuery.lowercased()
-        filteredCuisines = cuisines.filter { cuisine in
-            cuisine.matchesQuery(query: query)
+        if let filterCuisines = cuisines.compactMap({ $0.filtering(by: query) }) as? [Cuisine] {
+            filteredCuisines = filterCuisines
         }
         tableView.reloadData()
     }
@@ -94,12 +94,14 @@ class RestaurantsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredCuisines[section].restaurants.count
+        let cuisine = filteredCuisines[section]
+        return (cuisine.filteredRestaurants ?? cuisine.restaurants).count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RestaurantCell", for: indexPath)
-        let restaurant = filteredCuisines[indexPath.section].restaurants[indexPath.row]
+        let cuisine = filteredCuisines[indexPath.section]
+        let restaurant = (cuisine.filteredRestaurants ?? cuisine.restaurants)[indexPath.row]
 
         var content = cell.defaultContentConfiguration()
         content.text = restaurant.name

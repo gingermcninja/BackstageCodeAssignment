@@ -56,8 +56,8 @@ class MoviesViewController: UITableViewController {
             return
         }
         let query = searchQuery.lowercased()
-        filteredMovies = movies.filter { movie in
-            movie.matchesQuery(query: query)
+        if let filterMovies = movies.compactMap( { $0.filtering(by: query)}) as? [Movie] {
+            filteredMovies = filterMovies
         }
         tableView.reloadData()
     }

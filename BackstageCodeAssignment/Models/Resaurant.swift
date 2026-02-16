@@ -14,8 +14,12 @@ struct Restaurant: Codable, Searchable {
     var priceLevel: String
     var rating: Double
     
-    func matchesQuery(query: String) -> Bool {
-        return name.lowercased().contains(query) || city.lowercased().contains(query) || priceLevel.lowercased().contains(query) || String(rating).lowercased().contains(query)
+    func filtering(by query: String) -> Searchable? {
+        if name.lowercased().contains(query) || city.lowercased().contains(query) || priceLevel.lowercased().contains(query) || String(rating).lowercased().contains(query) {
+            return self
+        } else {
+            return nil
+        }
     }
 }
 
@@ -23,12 +27,25 @@ struct Cuisine: Codable, Searchable {
     var name: String
     var restaurants: [Restaurant]
     var filteredRestaurants: [Restaurant]?
-    
-    func matchesQuery(query: String) -> Bool {
-        let filteredRestaurants = restaurants.filter { restaurant in
-            restaurant.matchesQuery(query: query)
+
+    /// Returns a copy of this cuisine with `filteredRestaurants` populated,
+    /// or `nil` if neither the cuisine name nor any restaurant matches the query.
+    func filtering(by query: String) -> Searchable? {
+        let cuisineNameMatches = name.lowercased().contains(query)
+        var matchingRestaurants: [Restaurant] = []
+        if cuisineNameMatches {
+            matchingRestaurants = restaurants
+        } else {
+            if let filteredRestaurants = restaurants.compactMap( {$0.filtering(by: query)} ) as? [Restaurant], !filteredRestaurants.isEmpty {
+                matchingRestaurants = filteredRestaurants
+            }
         }
-        return name.lowercased().contains(query) || !filteredRestaurants.isEmpty
+
+        guard cuisineNameMatches || !matchingRestaurants.isEmpty else { return nil }
+
+        var filtered = self
+        filtered.filteredRestaurants = matchingRestaurants
+        return filtered
     }
 }
 
