@@ -6,22 +6,34 @@
 //
 import UIKit
 
-class ViewController: UIViewController {
-    var errorMessage: String?
+class ViewController: UITabBarController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        Task {
-            do {
-                var movies = try await APIManager.shared.getMovieList()
-                var cuisines = try await APIManager.shared.getCuisineList()
-                errorMessage = nil
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+        viewControllers = [makeMoviesTab(), makeRestaurantsTab()]
     }
 
+    // MARK: - Tab Setup
+
+    private func makeMoviesTab() -> UINavigationController {
+        let moviesVC = MoviesViewController()
+        let nav = UINavigationController(rootViewController: moviesVC)
+        nav.tabBarItem = UITabBarItem(
+            title: "Movies",
+            image: UIImage(systemName: "film"),
+            selectedImage: UIImage(systemName: "film.fill")
+        )
+        return nav
     }
 
-
+    private func makeRestaurantsTab() -> UINavigationController {
+        let restaurantsVC = RestaurantsViewController()
+        let nav = UINavigationController(rootViewController: restaurantsVC)
+        nav.tabBarItem = UITabBarItem(
+            title: "Restaurants",
+            image: UIImage(systemName: "fork.knife"),
+            selectedImage: UIImage(systemName: "fork.knife")
+        )
+        return nav
+    }
 }
