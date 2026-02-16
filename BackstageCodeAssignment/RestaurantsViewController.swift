@@ -9,8 +9,14 @@ import UIKit
 
 class RestaurantsViewController: UITableViewController {
 
-    private var cuisines: [Cuisine] = []
+    private var cuisines: [Cuisine] = [] {
+        didSet { applyFilter() }
+    }
+    private var filteredCuisines: [Cuisine] = []
+    private var filteredRestaurants: [Restaurant] = []
     private var errorMessage: String?
+    
+    private let searchController = UISearchController(searchResultsController: nil)
 
     // MARK: - Lifecycle
 
@@ -18,7 +24,42 @@ class RestaurantsViewController: UITableViewController {
         super.viewDidLoad()
         title = "Restaurants"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "RestaurantCell")
+        setupSearch()
         loadRestaurants()
+    }
+    
+    // MARK: - Search Setup
+
+    private func setupSearch() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search by cuisine, name, city, price or rating"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+    }
+    
+    // MARK: - Filtering
+
+    private var searchQuery: String {
+        searchController.searchBar.text?.trimmingCharacters(in: .whitespaces) ?? ""
+    }
+
+    private var isFiltering: Bool {
+        searchController.isActive && !searchQuery.isEmpty
+    }
+
+    private func applyFilter() {
+        guard isFiltering else {
+            filteredCuisines = cuisines
+            tableView.reloadData()
+            return
+        }
+        let query = searchQuery.lowercased()
+        if let filterCuisines = cuisines.compactMap({ $0.filtering(by: query) }) as? [Cuisine] {
+            filteredCuisines = filterCuisines
+        }
+        tableView.reloadData()
     }
 
     // MARK: - Data Loading
@@ -45,20 +86,22 @@ class RestaurantsViewController: UITableViewController {
     // MARK: - UITableViewDataSource
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        cuisines.count
+        filteredCuisines.count
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        cuisines[section].name
+        filteredCuisines[section].name
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        cuisines[section].restaurants.count
+        let cuisine = filteredCuisines[section]
+        return (cuisine.filteredRestaurants ?? cuisine.restaurants).count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RestaurantCell", for: indexPath)
-        let restaurant = cuisines[indexPath.section].restaurants[indexPath.row]
+        let cuisine = filteredCuisines[indexPath.section]
+        let restaurant = (cuisine.filteredRestaurants ?? cuisine.restaurants)[indexPath.row]
 
         var content = cell.defaultContentConfiguration()
         content.text = restaurant.name
@@ -66,5 +109,13 @@ class RestaurantsViewController: UITableViewController {
         cell.contentConfiguration = content
 
         return cell
+    }
+}
+
+// MARK: - UISearchResultsUpdating
+
+extension RestaurantsViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        applyFilter()
     }
 }
