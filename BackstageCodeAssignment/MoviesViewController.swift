@@ -59,7 +59,8 @@ class MoviesViewController: UITableViewController {
         filteredMovies = movies.filter { movie in
             movie.title.lowercased().contains(query) ||
             movie.genre.lowercased().contains(query) ||
-            movie.director.lowercased().contains(query)
+            movie.director.lowercased().contains(query) ||
+            "\(movie.year)".lowercased().contains(query)
         }
         tableView.reloadData()
     }
