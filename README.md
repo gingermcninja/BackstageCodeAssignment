@@ -6,7 +6,7 @@ An iOS app that displays searchable, selectable lists of **Movies** and **Restau
 
 ## Architecture Overview
 
-The app follows a **Model-View-ViewModel (MVVM)** pattern built on UIKit. A reusable base layer — `SearchableTableViewModel` and `SearchableTableViewController` — handles all generic list behaviour (searching, filtering, selection, empty state). Feature-specific subclasses extend this base to add their own data loading and cell rendering.
+The app follows a **Model-View-ViewModel (MVVM)** pattern built on UIKit. A reusable base layer — `SearchableTableViewModel` and `SearchableTableViewController` — handles all generic list behaviour (searching, filtering, selection, empty state). Feature-specific subclasses extend this base to add their own data loading and cell rendering. This should allow us to expand for new data type with relative ease - we just need to create a new model that adheres to the Searchable protocol and implement new subclasses for `SearchableTableViewModel` and `SearchableTableViewController` to display the data.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -188,9 +188,11 @@ BackstageCodeAssignment/
 - **Subclass-and-override for feature screens** — `configureViewModel()` and `getItems()` are the two override points, keeping boilerplate in the base class and feature code minimal.
 
 ## Building and Running
+
 The project does not utlize any third party libraries so building it is just a matter of selecting the BackstageCodingAssignment target from the dropdown, selecting a device and pressing the Run button. The app will run on both iPhone and iPads in either landscape or portrait orientation.
 
 ## Trade-offs
+
 I considered refining the APIManager further so that it would have a single getData(from endpoint:URL) function that would return either an array of Movies or an array of Cuisine objects, using a Generic type. I was hoping to use this function from within the SearchableTableViewModel getItems() function, since the overridden getItems() functions in the MovieTableViewModel and RestaurantTableViewModel are so similar. However, I decided against this approach for two reasons:
 - I find the use of generic type can made code more difficult to understand for mid-level developers
 - The structure of the data being returned by the two endpoint was too different - /movies returned a flat array whereas /restarants had to be parsed for the `cuisines` data. This made using a single function to parse both more trouble than I thought it was worth.
@@ -198,3 +200,7 @@ I considered refining the APIManager further so that it would have a single getD
 Another thing to note is that when the user has selected items in the multi-selection restaurants list, using the search box will clear the users selections. This is because we store our selections as IndexPaths which will change when the user filters on the data. I was unable to find a reliable way to store a Set of Searchable objects so I compromised with this.
 
 Also, due to time constraints I was unable to implement any tests or SwiftUI interfaces.
+
+## Project tracking
+
+I used a Jira board to track my work on this project, it can be found at https://gingermcninja.atlassian.net/jira/software/projects/BAC/boards/243
