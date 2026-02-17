@@ -32,6 +32,14 @@ class SearchableTableViewModel {
 
     // MARK: - Filtering
 
+    var hasNoResults: Bool {
+        isFiltering && filteredItems.isEmpty
+    }
+
+    var isFiltering: Bool {
+        !searchQuery.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     func applyFilter() {
         let trimmed = searchQuery.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else {
