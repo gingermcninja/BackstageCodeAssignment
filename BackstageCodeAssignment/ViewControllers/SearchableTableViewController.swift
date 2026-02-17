@@ -56,7 +56,24 @@ class SearchableTableViewController: UITableViewController {
             tableView.reloadData()
         }
     }
+    
+    // MARK: - Empty State View
+    
+    private func updateEmptyState() {
+        if viewModel.hasNoResults {
+            let label = UILabel()
+            label.text = "No results found"
+            label.textColor = .secondaryLabel
+            label.font = .preferredFont(forTextStyle: .body)
+            label.textAlignment = .center
+            tableView.backgroundView = label
+        } else {
+            tableView.backgroundView = nil
+        }
+    }
 
+    // MARK: - Error Handling
+    
     func showError(_ message: String) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -80,6 +97,7 @@ class SearchableTableViewController: UITableViewController {
 extension SearchableTableViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         viewModel.searchQuery = searchController.searchBar.text ?? ""
+        updateEmptyState()
         tableView.reloadData()
     }
 }
