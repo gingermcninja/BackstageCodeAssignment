@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Restaurant: Codable, Searchable {
+struct Restaurant: Codable, Searchable {    
     var id: Int
     var name: String
     var city: String
@@ -20,6 +20,10 @@ struct Restaurant: Codable, Searchable {
         } else {
             return nil
         }
+    }
+    
+    func getName() -> String {
+        name
     }
 }
 
@@ -46,6 +50,10 @@ struct Cuisine: Codable, Searchable {
         var filtered = self
         filtered.filteredRestaurants = matchingRestaurants
         return filtered
+    }
+    
+    func getName() -> String {
+        name
     }
 }
 

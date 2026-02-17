@@ -10,6 +10,7 @@ class MovieTableViewModel : SearchableTableViewModel {
         super.init()
         self.title = "Movies"
         self.searchPlaceholder = "Search by title, genre, year or director"
+        self.selectionType = .Single
     }
     
     // MARK: - Data Loading

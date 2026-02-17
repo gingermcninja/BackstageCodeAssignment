@@ -9,4 +9,5 @@ import Foundation
 
 protocol Searchable {
     func filtering(by query: String) -> Searchable?
+    func getName() -> String
 }

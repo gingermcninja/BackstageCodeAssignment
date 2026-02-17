@@ -33,13 +33,12 @@ class RestaurantsViewController: SearchableTableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchableCell", for: indexPath)
-        guard let cuisine = viewModel.filteredItems[indexPath.section] as? Cuisine else { return cell }
-        let restaurant = (cuisine.filteredRestaurants ?? cuisine.restaurants)[indexPath.row]
-
+        guard let restaurant = viewModel.itemForIndexPath(indexPath) as? Restaurant else { return cell }
         var content = cell.defaultContentConfiguration()
         content.text = restaurant.name
         content.secondaryText = "\(restaurant.city) · \(restaurant.priceLevel) · ⭐️ \(restaurant.rating)"
         cell.contentConfiguration = content
+        cell.accessoryType = viewModel.selectedIndexPaths.contains(indexPath) ? .checkmark : .none
 
         return cell
     }
