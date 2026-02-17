@@ -45,7 +45,6 @@ class SearchableTableViewController: UITableViewController {
     func setupSearch() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        //searchController.searchBar.placeholder = "Search by cuisine, name, city, price or rating"
         searchController.searchBar.placeholder = searchText
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
@@ -78,8 +77,7 @@ class SearchableTableViewController: UITableViewController {
     func loadItems() {
             items = []
             errorMessage = nil
-            tableView.reloadData()
-        
+            tableView.reloadData()        
     }
 
     func showError(_ message: String) {
@@ -96,7 +94,6 @@ class SearchableTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchableCell", for: indexPath)
-        //let item = filteredItems[indexPath.row]
         return cell
     }
 }
