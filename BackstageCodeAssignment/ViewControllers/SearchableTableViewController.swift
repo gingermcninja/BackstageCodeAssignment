@@ -8,76 +8,53 @@
 import UIKit
 
 class SearchableTableViewController: UITableViewController {
-    
-    var items: [Searchable] = [] {
-        didSet { applyFilter() }
-    }
-    var filteredItems: [Searchable] = []
-    var errorMessage: String?
-    var tableTitle: String = ""
-    var searchText: String = "Search"
-    
+
+    // MARK: - View Model
+
+    var viewModel = SearchableTableViewModel()
+
+    // MARK: - Configuration
+
     let searchController = UISearchController(searchResultsController: nil)
+    
+    func configureViewModel() {
+        viewModel = SearchableTableViewModel()
+    }
 
     // MARK: - Lifecycle
-    
-    init(style: UITableView.Style, title: String, searchText: String) {
-        super.init(style: style)
-        self.tableTitle = title
-        self.searchText = searchText
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = self.tableTitle
+        configureViewModel()
+        title = viewModel.title
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SearchableCell")
         setupSearch()
         loadItems()
     }
-    
-    
+
     // MARK: - Search Setup
 
     func setupSearch() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = searchText
+        searchController.searchBar.placeholder = viewModel.searchPlaceholder
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
     }
-    
-    // MARK: - Filtering
-
-    var searchQuery: String {
-        searchController.searchBar.text?.trimmingCharacters(in: .whitespaces) ?? ""
-    }
-
-    var isFiltering: Bool {
-        searchController.isActive && !searchQuery.isEmpty
-    }
-
-    func applyFilter() {
-        guard isFiltering else {
-            filteredItems = items
-            tableView.reloadData()
-            return
-        }
-        let query = searchQuery.lowercased()
-        filteredItems = items.compactMap( { $0.filtering(by: query) })
-        tableView.reloadData()
-    }
 
     // MARK: - Data Loading
 
+    /// Override in subclasses to populate `viewModel.items`.
     func loadItems() {
-            items = []
-            errorMessage = nil
-            tableView.reloadData()        
+        Task {
+            do {
+                try await viewModel.getItems()
+            } catch {
+                showError(error.localizedDescription)
+            }
+            tableView.reloadData()
+        }
     }
 
     func showError(_ message: String) {
@@ -89,7 +66,7 @@ class SearchableTableViewController: UITableViewController {
     // MARK: - UITableViewDataSource
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredItems.count
+        viewModel.filteredItems.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -102,6 +79,7 @@ class SearchableTableViewController: UITableViewController {
 
 extension SearchableTableViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        applyFilter()
+        viewModel.searchQuery = searchController.searchBar.text ?? ""
+        tableView.reloadData()
     }
 }
