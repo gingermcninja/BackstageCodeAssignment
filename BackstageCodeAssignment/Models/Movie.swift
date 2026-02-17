@@ -24,4 +24,8 @@ struct Movie: Codable, Searchable {
             return nil
         }
     }
+    
+    func getName() -> String {
+        title
+    }
 }

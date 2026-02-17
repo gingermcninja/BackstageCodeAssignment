@@ -22,7 +22,7 @@ class MoviesViewController: SearchableTableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchableCell", for: indexPath)
-        guard let movie = viewModel.filteredItems[indexPath.row] as? Movie else { return cell }
+        guard let movie = viewModel.itemForIndexPath(indexPath) as? Movie else { return cell }
 
         var content = cell.defaultContentConfiguration()
         content.text = movie.title
