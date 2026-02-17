@@ -35,6 +35,7 @@ class SearchableTableViewController: UITableViewController {
     // MARK: - Search Setup
 
     func setupSearch() {
+        searchController.hidesNavigationBarDuringPresentation = false
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = viewModel.searchPlaceholder
@@ -123,6 +124,7 @@ class SearchableTableViewController: UITableViewController {
 extension SearchableTableViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         viewModel.searchQuery = searchController.searchBar.text ?? ""
+        viewModel.selectedIndexPaths.removeAll()
         updateEmptyState()
         updateSelectionConfirmationButton()
         tableView.reloadData()
